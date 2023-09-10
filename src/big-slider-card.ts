@@ -283,12 +283,14 @@ export class BigSliderCard extends LitElement {
     const attr = this.config?.attribute || DEFAULT_ATTRIBUTE;
     let _value = 0;
 
-    if (this.stateObj.state != 'on') {
-      _value = 0
-    } else {
+    if (this.stateObj.state == 'on' || this.stateObj.state == 'playing') {
       switch (attr) {
         case 'brightness':
           _value = Math.ceil(100 * (this.stateObj.attributes.brightness || 255)/255)
+          break;
+        case 'volume_level':
+          _value = Math.ceil(this.stateObj.attributes.volume_level*100);
+       //   console.log("getValue, switch was volume_level with value {}", value)
           break;
         case 'red':
         case 'green':
@@ -324,6 +326,12 @@ export class BigSliderCard extends LitElement {
         value = Math.ceil(value/100.0*255);
         if (!value) on = false;
         break;
+      case 'volume_level':
+        _value = value/100;
+        on = this.stateObj.state === "playing";
+//        console.log("setValue, switch was volume_level with value {} and state {}", value, on)
+        value = _value;
+        break;
       case 'red':
       case 'green':
       case 'blue':
@@ -349,14 +357,44 @@ export class BigSliderCard extends LitElement {
       entity_id: this.stateObj.entity_id,
     }
 
+    const type = this.stateObj.entity_id.substring(0, this.stateObj.entity_id.indexOf('.'))
+
     if (on) {
       params[attr] = value;
       if (this.config.transition) {
         params.transition = this.config.transition;
       }
-      this.hass.callService('light', 'turn_on', params);
+      switch (type) {
+        case 'light':
+          this.hass.callService(type, 'turn_on', params);
+          break;
+        case 'media_player':
+          if(value > 0 ) {
+            this.hass.callService(type, 'volume_set', params);
+          } else {
+            delete params[attr];
+            params['is_volume_muted'] = true;
+            this.hass.callService(type, 'volume_mute', params);
+          }
+          break;
+        default:
+          console.log("error");
+      }
     } else {
-      this.hass.callService('light', 'turn_off', params);
+      switch (type) {
+        case 'light':
+          this.hass.callService(type, 'turn_off', params);
+          break;
+        case 'media_player':
+          params[attr] = value;
+          this.hass.callService(type, 'volume_set', params);
+          delete params[attr];
+          params['is_volume_muted'] = false;
+          this.hass.callService(type, 'volume_mute', params);
+          break;
+        default:
+          console.log("error");
+      }
     }
   }
 
