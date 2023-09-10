@@ -72,9 +72,9 @@ export class BigSliderCard extends LitElement {
     this._hass = hass;
     this._state = hass.states[this._entity];
     this._status = this._state?.state;
-    this._name = 
+    this._name =
       this._config.name ??
-      this._state?.attributes?.friendly_name ?? 
+      this._state?.attributes?.friendly_name ??
       this._entity.split('.')[1] ??
       '';
   }
@@ -290,12 +290,16 @@ export class BigSliderCard extends LitElement {
       this.style.removeProperty('--bsc-opacity');
     }
 
-    if (this._status != 'on') {
+    if (this._status != 'on' || this._status == 'playing') {
       _value = this._config.min ?? 0;
     } else {
       switch (attr) {
         case 'brightness':
           _value = Math.round(100 * (this._state.attributes.brightness ?? 255)/255)
+          break;
+          case 'volume_level':
+          _value = Math.ceil(this._state.attributes.volume_level*100);
+       //   console.log("getValue, switch was volume_level with value {}", value)
           break;
         case 'red':
         case 'green':
@@ -332,6 +336,12 @@ export class BigSliderCard extends LitElement {
         value = Math.ceil(value/100.0*255);
         if (!value) on = false;
         break;
+      case 'volume_level':
+        _value = value/100;
+        on = this._status === "playing";
+//        console.log("setValue, switch was volume_level with value {} and state {}", value, on)
+        value = _value;
+        break;
       case 'red':
       case 'green':
       case 'blue':
@@ -356,14 +366,46 @@ export class BigSliderCard extends LitElement {
       entity_id: this._state.entity_id,
     }
 
+    const type = this._state.entity_id.substring(0, this._state.entity_id.indexOf('.'))
+
     if (on) {
       params[attr] = value;
       if (this._config.transition) {
         params.transition = this._config.transition;
       }
       this._hass!.callService('light', 'turn_on', params);
+      switch (type) {
+        case 'light':
+          this._hass!.callService(type, 'turn_on', params);
+          break;
+        case 'media_player':
+          if(value > 0 ) {
+            this._hass!.callService(type, 'volume_set', params);
+          } else {
+            delete params[attr];
+            params['is_volume_muted'] = true;
+            this._hass!.callService(type, 'volume_mute', params);
+          }
+          break;
+        default:
+          console.log("error");
+      }
     } else {
       this._hass!.callService('light', 'turn_off', params);
+      switch (type) {
+        case 'light':
+          this._hass!.callService(type, 'turn_off', params);
+          break;
+        case 'media_player':
+          params[attr] = value;
+          this._hass!.callService(type, 'volume_set', params);
+          delete params[attr];
+          params['is_volume_muted'] = false;
+          this._hass!.callService(type, 'volume_mute', params);
+          break;
+        default:
+          console.log("error");
+      }
     }
   }
 
