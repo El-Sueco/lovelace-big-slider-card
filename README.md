@@ -3,7 +3,8 @@
 <!-- [![hacs_badge](https://img.shields.io/badge/HACS-default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs) -->
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
-Big slider card inspired by the google home app cards for `light` entities.
+Big slider card inspired by the google home app cards for `light` and `media_player` entities.
+Fork of https://github.com/nicufarmache/lovelace-big-slider-card for development and preparing a merge request later on.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nicufarmache/lovelace-big-slider-card/master/prev-dark.gif">
@@ -56,26 +57,32 @@ hold_action:
 
 ### Options
 
-| Name              | Type    | Requirement  | Description                                    | Default             |
-| ----------------- | ------- | ------------ | ---------------------------------------------- | ------------------- |
-| type              | string  | **Required** | `custom:big-slider-card`                       |                     |
-| entity            | string  | **Required** | Home Assistant entity ID.                      |                     |
-| name              | string  | **Optional** | Name to show on card                           | entity name         |
-| attribute         | string  | **Optional** | Attribute to control                           | `brightness`        |
-| transition        | number  | **Optional** | Transition time (seonds)                       | not used if unset   |
-| color             | string  | **Optional** | Slider color (CSS color)                       | theme color         |
-| icon_color        | string  | **Optional** | Icon color (CSS color)                         | entity color        |
-| colorize          | boolean | **Optional** | Colorize slider using entity color             | false               |
-| icon              | string  | **Optional** | Sets custom icon                               | entity icon         |
-| show_percentage   | boolean | **Optional** | Show percentage under entity name              | false               |
-| bold_text         | boolean | **Optional** | Make taxt font bold                            | false               |
-| min               | number  | **Optional** | Maximum value for slider                       | `0`                 |
-| max               | number  | **Optional** | Minimum value for slider                       | `100`               |
-| min_slide_time    | number  | **Optional** | Mimimum time to prevent accidental changes (ms)| `0`                 |
-| hold_time         | number  | **Optional** | Hold gesture time (ms)                         | `600`               |
-| settle_time       | number  | **Optional** | Ignore updates after changig the value (ms)    | `3000`              |
-| tap_action        | object  | **Optional** | Action to take on tap                          | `action: toggle`    |
-| hold_action       | object  | **Optional** | Action to take on hold                         | `action: more-info` |
+| Name              | Type    | Requirement  | Description                                     | Default             |
+| ----------------- | ------- | ------------ |-------------------------------------------------| ------------------- |
+| type              | string  | **Required** | `custom:big-slider-card`                        |                     |
+| entity            | string  | **Required** | Home Assistant entity ID.                       |                     |
+| name              | string  | **Optional** | Name to show on card                            | entity name         |
+| attribute         | string  | **Optional** | Attribute to control - See below                | `brightness`        |
+| transition        | number  | **Optional** | Transition time (seonds)                        | not used if unset   |
+| color             | string  | **Optional** | Slider color (CSS color)                        | theme color         |
+| icon_color        | string  | **Optional** | Icon color (CSS color)                          | entity color        |
+| colorize          | boolean | **Optional** | Colorize slider using entity color              | false               |
+| icon              | string  | **Optional** | Sets custom icon                                | entity icon         |
+| show_percentage   | boolean | **Optional** | Show percentage under entity name               | false               |
+| bold_text         | boolean | **Optional** | Make taxt font bold                             | false               |
+| min               | number  | **Optional** | Maximum value for slider                        | `0`                 |
+| max               | number  | **Optional** | Minimum value for slider                        | `100`               |
+| min_slide_time    | number  | **Optional** | Mimimum time to prevent accidental changes (ms) | `0`                 |
+| hold_time         | number  | **Optional** | Hold gesture time (ms)                          | `600`               |
+| settle_time       | number  | **Optional** | Ignore updates after changig the value (ms)     | `3000`              |
+| tap_action        | object  | **Optional** | Action to take on tap                           | `action: toggle`    |
+| hold_action       | object  | **Optional** | Action to take on hold                          | `action: more-info` |
+
+| Attribute       | Description                                     |
+|-----------------|-------------------------------------------------|
+| `brightness`    | Brightness of `light`-entity                    |
+| `volume_level`  | volume_level-attribute of `media_player`-entity | 
+
 
 For more action info see this page : [Actions - Home Assistant][actions]
 
