@@ -242,8 +242,7 @@ export class BigSliderCard extends LitElement {
     let isOn = false;
 
     if (this.stateObj) {
-      if (this.stateObj.state == 'on' || this.stateObj.state == 'playing'
-          || (this.stateObj.entity_id.substring(0, this.stateObj.entity_id.indexOf('.')) == 'media_player' && (this.config?.show_volume_when_idle || false))) {
+      if (this.stateObj.state == 'on') {
         const stateColor = this.stateObj.attributes?.rgb_color || [255, 255, 255];
         const stateBrightness = this.stateObj.attributes?.brightness || 255;
         isOn = true;
@@ -284,14 +283,13 @@ export class BigSliderCard extends LitElement {
     const attr = this.config?.attribute || DEFAULT_ATTRIBUTE;
     let _value = 0;
 
-    if (this.stateObj.state == 'on' || this.stateObj.state == 'playing'
-        || (this.stateObj.entity_id.substring(0, this.stateObj.entity_id.indexOf('.')) == 'media_player' && (this.config?.show_volume_when_idle || false))) {
+    if (this.stateObj.state == 'on' || this.stateObj.state == 'playing') {
       switch (attr) {
         case 'brightness':
           _value = Math.ceil(100 * (this.stateObj.attributes.brightness || 255)/255)
           break;
         case 'volume_level':
-          _value = Math.ceil(this.stateObj.attributes?.volume_level*100) || 0;
+          _value = Math.ceil(this.stateObj.attributes.volume_level*100);
        //   console.log("getValue, switch was volume_level with value {}", value)
           break;
         case 'red':
