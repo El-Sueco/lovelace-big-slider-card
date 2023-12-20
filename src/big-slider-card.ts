@@ -57,8 +57,8 @@ export class BigSliderCard extends LitElement {
       throw new Error(localize('common.no_entity_set'));
     }
 
-    if (!config.entity || config.entity.split(".")[0] !== "light") {
-      throw new Error("Specify an entity from within the light domain");
+    if (!config.entity || !(config.entity.split(".")[0] === "light" || config.entity.split(".")[0] === "media_player" || config.entity.split(".")[0] === "switch")) {
+      throw new Error("Specify an entity from within the light, switch or media_player domain");
     }
 
     this._config = { ...DEFAULT_CONFIG, ...config };
@@ -291,17 +291,14 @@ export class BigSliderCard extends LitElement {
       this.style.removeProperty('--bsc-opacity');
     }
 
-    if (this._status != 'on'  || this._status != 'playing'
+    if (this._status == 'on' || this._status == 'playing'
         || (this._state.entity_id.substring(0, this._state.entity_id.indexOf('.')) == 'media_player' && (this._config?.show_volume_when_idle || false))) {
-      _value = this._config.min ?? 0;
-    } else {
       switch (attr) {
         case 'brightness':
           _value = Math.round(100 * (this._state.attributes.brightness ?? 255)/255)
           break;
         case 'volume_level':
           _value = Math.ceil(this._state.attributes.volume_level*100) || 0;
-       //   console.log("getValue, switch was volume_level with value {}", value)
           break;
         case 'red':
         case 'green':
@@ -319,6 +316,8 @@ export class BigSliderCard extends LitElement {
           if (attr === 'saturation') _value = hs[1];
           break;
       }
+    } else {
+      _value = this._config.min ?? 0;
     }
 
     this.currentValue = _value;
@@ -341,7 +340,6 @@ export class BigSliderCard extends LitElement {
       case 'volume_level':
         _value = value/100;
         on = this._status === "playing";
-//        console.log("setValue, switch was volume_level with value {} and state {}", value, on)
         value = _value;
         break;
       case 'red':
@@ -375,7 +373,6 @@ export class BigSliderCard extends LitElement {
       if (this._config.transition) {
         params.transition = this._config.transition;
       }
-      this._hass!.callService('light', 'turn_on', params);
       switch (type) {
         case 'light':
           this._hass!.callService(type, 'turn_on', params);
